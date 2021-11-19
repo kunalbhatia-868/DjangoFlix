@@ -1,38 +1,45 @@
 from django.db import models
 from django.utils import timezone
-
+from django.db.models.signals import pre_save,post_save
+from djangoflix.db.models import PublishStateOptions
+from djangoflix.db.receivers import publish_state_pre_save,slufigy_pre_save
 # Create your models here.
-class Video(models.Model):
-    class VideoStateOptions(models.TextChoices):
-        # constant = Db_Value,User Display Value
-        PUBLISH = "PU", "Publish"
-        DRAFT = "DR", "Draft"
-        # UNLISTED='UN','Unlisted'
-        # PRIVATE='PR','Private'
 
+class VideoQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(
+            state=PublishStateOptions.PUBLISH,
+            publish_timestamp__lte=timezone.now()
+        )
+
+class VideoManager(models.Manager):
+    def get_queryset(self):
+        return VideoQuerySet(self.model,using=self._db)
+
+    def published(self):
+        return self.get_queryset().published()
+
+
+class Video(models.Model):
     title = models.CharField(max_length=220)
     description = models.TextField(blank=True, null=True)
     slug = models.SlugField(blank=True, null=True)
-    video_id = models.CharField(max_length=220)
+    video_id = models.CharField(max_length=220,unique=True)
     active = models.BooleanField(default=True)
+    timestamp=models.DateTimeField(auto_now_add=True)
+    updated=models.DateTimeField(auto_now=True)
     state = models.CharField(
-        max_length=2, choices=VideoStateOptions.choices, default=VideoStateOptions.DRAFT
+        max_length=2, choices=PublishStateOptions.choices, default=PublishStateOptions.DRAFT
     )
     publish_timestamp = models.DateTimeField(
         auto_now=False, auto_now_add=False, blank=True, null=True
     )
+    
+    objects=VideoManager()
 
     @property
     def is_published(self):
         return self.active
-
-    def save(self, *args, **kwargs):
-        if (self.state == self.VideoStateOptions.PUBLISH and self.publish_timestamp is None):
-            print("save timestamp for published published")
-            self.publish_timestamp=timezone.now()
-        elif self.state == self.VideoStateOptions.DRAFT:    
-            self.publish_timestamp=None
-        return super().save(*args, **kwargs)
 
 
 class VideoAllProxy(Video):
@@ -47,3 +54,7 @@ class VideoPublishedProxy(Video):
         proxy = True
         verbose_name = "Published Video"
         verbose_name_plural = "Published Videos"
+
+
+pre_save.connect(publish_state_pre_save,sender=Video)
+pre_save.connect(slufigy_pre_save,sender=Video)
