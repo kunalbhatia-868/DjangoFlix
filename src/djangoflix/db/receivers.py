@@ -13,8 +13,9 @@ def publish_state_pre_save(sender,instance,*args,**kwargs):
         instance.publish_timestamp=None
 
 
-def slufigy_pre_save(sender,instance,*args,**kwargs):
+def slugify_pre_save(sender,instance,*args,**kwargs):
     title=instance.title
     slug=instance.slug
     if slug is None:
-        instance.slug=slugify(title)  
+        instance.slug=slugify(title) 
+        print(instance.slug) 

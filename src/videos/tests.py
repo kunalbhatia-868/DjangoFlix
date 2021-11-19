@@ -18,9 +18,9 @@ class VideoModelTestCase(TestCase):
         self.assertTrue(qs.exists())
 
     def test_slug_field(self):
-        title=self.obj_a.title
+        title=self.obj_b.title
         test_slug=slugify(title)
-        self.assertEqual(test_slug,self.obj_a.slug)
+        self.assertEqual(test_slug,self.obj_b.slug)
 
     def test_created_count(self):
         title = "This is my Title"
