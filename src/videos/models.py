@@ -38,7 +38,7 @@ class Video(models.Model):
     objects=VideoManager()
 
     def get_playlists_ids(self):
-        return list(self.playlist_set.all().values_list('id',flat=True))
+        return list(self.playlist_featured.all().values_list('id',flat=True))
 
     @property
     def is_published(self):

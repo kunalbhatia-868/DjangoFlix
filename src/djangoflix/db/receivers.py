@@ -7,7 +7,6 @@ def publish_state_pre_save(sender,instance,*args,**kwargs):
     is_publish=instance.state == PublishStateOptions.PUBLISH
     is_draft=instance.publish_timestamp is None
     if (is_publish and is_draft):
-            print("save timestamp for published published")
             instance.publish_timestamp=timezone.now()
     elif instance.state == PublishStateOptions.DRAFT:    
         instance.publish_timestamp=None
@@ -18,4 +17,3 @@ def slugify_pre_save(sender,instance,*args,**kwargs):
     slug=instance.slug
     if slug is None:
         instance.slug=slugify(title) 
-        print(instance.slug) 

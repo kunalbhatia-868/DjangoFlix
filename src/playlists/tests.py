@@ -10,16 +10,30 @@ from videos.models import Video
 class PlaylistModelTestCase(TestCase):
     def setUp(self):
         self.video_a=Video.objects.create(title='my title',video_id='asas')
+        self.video_b=Video.objects.create(title='my title',video_id='asxssas')
+        self.video_c=Video.objects.create(title='my title',video_id='asaxsxsxs')
+        
         self.obj_a=Playlist.objects.create(title="This is my Title",video=self.video_a)
-        self.obj_b=Playlist.objects.create(title="This is my Title",video=self.video_a,state=PublishStateOptions.PUBLISH)
-
+        self.obj_b=Playlist.objects.create(title="This is my Title",video=self.video_a,
+            state=PublishStateOptions.PUBLISH)
+        self.obj_b.videos.set([self.video_a,self.video_b,self.video_c])    
+        self.obj_a.save()
 
     def test_playlist_video(self):
         self.assertEqual(self.obj_a.video,self.video_a)
 
     def test_video_playlist(self):
-        qs=self.video_a.playlist_set.all()
+        qs=self.video_a.playlist_featured.all()
         self.assertEqual(qs.count(),2)
+
+    def test_playlist_video_items(self):
+        count=self.obj_b.videos.all().count()
+        self.assertEqual(count,3)
+
+    def test_video_playlist_ids(self):
+        ids=self.obj_a.video.get_playlists_ids()
+        actualids=list(Playlist.objects.filter(video=self.video_a).values_list('id',flat=True))
+        self.assertEqual(ids,actualids)
 
     def test_valid_title(self):
         title = "This is my Title"
