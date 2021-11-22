@@ -4,6 +4,7 @@ from django.db.models.signals import pre_save,post_save
 from djangoflix.db.models import PublishStateOptions,PlaylistTypeChoices
 from djangoflix.db.receivers import publish_state_pre_save,slugify_pre_save
 from videos.models import Video
+from categories.models import Category
 # Create your models here.
 
 class PlaylistQuerySet(models.QuerySet):
@@ -24,6 +25,7 @@ class PlaylistManager(models.Manager):
 class Playlist(models.Model):
     parent=models.ForeignKey("self",blank=True,null=True,on_delete=models.SET_NULL)
     parent_order=models.IntegerField(default=1)
+    category=models.ForeignKey(Category,blank=True,null=True,related_name='playlists',on_delete=models.SET_NULL)
     title = models.CharField(max_length=220)
     type=models.CharField(max_length=3,choices=PlaylistTypeChoices.choices,default=PlaylistTypeChoices.PLAYLIST)
     description = models.TextField(blank=True, null=True)
@@ -57,7 +59,7 @@ pre_save.connect(slugify_pre_save,sender=Playlist)
 
 class TvShowProxyManager(PlaylistManager):
     def all(self):
-        return self.get_queryset().filter(parent__isnull=True,type=PlaylistTypeChoices.PLAYLIST)
+        return self.get_queryset().filter(parent__isnull=True,type=PlaylistTypeChoices.SHOW)
 
 class TvShowSeasonProxyManager(PlaylistManager):
     def all(self):

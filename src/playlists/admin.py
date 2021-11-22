@@ -43,12 +43,9 @@ class TvShowProxyAdmin(admin.ModelAdmin):
         return TvShowProxy.objects.all()
         
     inlines=[TvShowSeasonProxyInline]
-    fields=['title','state','description','video','slug']
+    fields=['title','state','description','category','video','slug']
     class Meta:
-        model=TvShowProxy
-    
-    def get_queryset(self, request):	
-        return TvShowProxy.objects.all()      
+        model=TvShowProxy  
 
 class PlaylistItemInline(admin.TabularInline):
     model=PlaylistItem
