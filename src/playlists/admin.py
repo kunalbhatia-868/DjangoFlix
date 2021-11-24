@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Playlist,PlaylistItem,TvShowProxy,TvShowSeasonProxy,MovieProxy
 from djangoflix.db.models import PlaylistTypeChoices
-
+from tags.admin import TaggedItemInline
 # Register your models here.
 
 
@@ -42,7 +42,7 @@ class TvShowProxyAdmin(admin.ModelAdmin):
     def get_queryset(self,request):
         return TvShowProxy.objects.all()
         
-    inlines=[TvShowSeasonProxyInline]
+    inlines=[TaggedItemInline,TvShowSeasonProxyInline]
     fields=['title','state','description','category','video','slug']
     class Meta:
         model=TvShowProxy  

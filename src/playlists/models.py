@@ -1,10 +1,12 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
 from django.utils import timezone
 from django.db.models.signals import pre_save,post_save
 from djangoflix.db.models import PublishStateOptions,PlaylistTypeChoices
 from djangoflix.db.receivers import publish_state_pre_save,slugify_pre_save
 from videos.models import Video
 from categories.models import Category
+from tags.models import TaggedItem
 # Create your models here.
 
 class PlaylistQuerySet(models.QuerySet):
@@ -41,7 +43,8 @@ class Playlist(models.Model):
     publish_timestamp = models.DateTimeField(
         auto_now=False, auto_now_add=False, blank=True, null=True
     )
-    
+    tags=GenericRelation(TaggedItem,related_query_name='playlist')
+
     objects=PlaylistManager()
 
     def __str__(self):
