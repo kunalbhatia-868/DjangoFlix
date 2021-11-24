@@ -7,11 +7,11 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 User=settings.AUTH_USER_MODEL
 
 class RatingChoice(models.IntegerChoices):
-    ONE=1
-    TWO=2
-    THREE=3
-    FOUR=4
-    FIVE=5
+    ONE=1 ,'Onw'
+    TWO=2 ,'Two'
+    THREE=3, 'Three'
+    FOUR=4 ,'Four'
+    FIVE=5 ,'Five'
 
     __empty__='Unknown'
 
