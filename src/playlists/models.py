@@ -25,6 +25,8 @@ class PlaylistManager(models.Manager):
     def published(self):
         return self.get_queryset().published()
 
+    def featured_playlist(self):
+        return self.get_queryset().filter(type=PlaylistTypeChoices.choices)
 
 class Playlist(models.Model):
     parent=models.ForeignKey("self",blank=True,null=True,on_delete=models.SET_NULL)
@@ -63,9 +65,9 @@ class Playlist(models.Model):
     def get_rating_spread(self):
         return Playlist.objects.filter(id=self.id).aggregate(max=Max('ratings__value'),min=Min('ratings__value'))
 
+    def get_short_display(self):
+        return ""
 
-pre_save.connect(publish_state_pre_save,sender=Playlist)
-pre_save.connect(slugify_pre_save,sender=Playlist)
 
 
 class TvShowProxyManager(PlaylistManager):
@@ -104,6 +106,12 @@ class TvShowProxy(Playlist):
         self.type=PlaylistTypeChoices.SHOW
         super().save(*args,**kwargs)     
 
+    @property
+    def seasons(self):
+        return self.playlist_set.published()
+
+    def get_short_display(self):
+        return f"{self.seasons.count()} Seasons"
 
 class TvShowSeasonProxy(Playlist):
     objects=TvShowSeasonProxyManager()
@@ -126,3 +134,15 @@ class PlaylistItem(models.Model):
 
     class Meta:
         ordering=['order','-timestamp']
+
+pre_save.connect(publish_state_pre_save, sender=TvShowProxy)
+pre_save.connect(slugify_pre_save, sender=TvShowProxy)
+
+pre_save.connect(publish_state_pre_save, sender=TvShowSeasonProxy)
+pre_save.connect(slugify_pre_save, sender=TvShowSeasonProxy)
+
+pre_save.connect(publish_state_pre_save, sender=MovieProxy)
+pre_save.connect(slugify_pre_save, sender=MovieProxy)
+
+pre_save.connect(publish_state_pre_save, sender=Playlist)
+pre_save.connect(slugify_pre_save, sender=Playlist)        
